@@ -1,5 +1,29 @@
 'use client'
 
+import {
+    Alert,
+    AlertColor,
+    Box,
+    Button,
+    IconButton,
+    Paper,
+    Snackbar,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Typography,
+} from "@mui/material";
+import {
+    Add as AddIcon,
+    Cancel as CancelIcon,
+    Check as CheckIcon,
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+} from "@mui/icons-material";
 import { useForm } from "react-hook-form"
 import React, { useState, useEffect } from 'react';
 import productsData from "./sample/dummy_products.json"
@@ -22,6 +46,18 @@ export default function Page() {
 
     // 読み込みデータを保持
     const [data, setData] = useState<Array<ProductData>>([]);
+    const [open, setOpen] = useState(false);
+    const [severity, setSeverity] = useState<AlertColor>('success');
+    const [message, setMessage] = useState('');
+    const result = (severity: AlertColor, message: string) => {
+        setOpen(true);
+        setSeverity(severity);
+        setMessage(message);
+    };
+
+    const handleClose = (event: any, reason: any) => {
+        setOpen(false);
+    };
 
     useEffect(() => {
         setData(productsData)
@@ -66,6 +102,7 @@ export default function Page() {
         setId(0)
     };
     const handleAdd = (data: ProductData) => {
+        result('success','商品が登録されました')
         setId(0)
     };
 
@@ -85,105 +122,210 @@ export default function Page() {
         setId(0);
     };
     const handleEdit = (data: ProductData) => {
+        result('success', '商品が更新されました')
         setId(0);
     };
     const handleDelete = (id: number) => {
+        result('success', '商品が削除されました')
         setId(0)
     };
 
     return (
         <>
-            <h2>商品一覧</h2>
-            <button onClick={ handleShowNewRow}>商品を追加する</button>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>商品ID</th>
-                            <th>商品名</th>
-                            <th>単価</th>
-                            <th>説明</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {id === null ? (
-                            <tr>
-                                <td></td>
-                                <td><input type="text" id="name" {...register("name",
-                                { required: true, maxLength: 100})}/>
-                                {errors.name && (
-                                    <div>100文字以内の商品名を入力してください</div>
-                                )}
-                                </td>
-                                <td><input type="text" id="price" {...register("price",
-                                { required: true, min: 1, max: 9999999,})}/>
-                                {errors.price && (
-                                    <div>1から9999999の数値を入力してください</div>
-                                )}
-                                </td>
-                                <td><input type="text" id="description" {...register("description",
-                                )}/>
+            <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+                <Alert severity={severity}>{message}</Alert>
+            </Snackbar>
+            <Typography variant="h5">商品一覧</Typography>
+            <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => handleShowNewRow()}
+            >
+                商品を追加する
+            </Button>
+            <Box
+                component="form"
+                onSubmit={handleSubmit(onSubmit)}
+                sx={{ height: 400, width: "100%" }}
+            >
+                <TableContainer component={Paper}>
+                    <Table
+                        sx={{
+                            display: { mobile: "none", desktop: "table" },
+                        }}
+                    >
+
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>商品ID</TableCell>
+                            <TableCell>商品名</TableCell>
+                            <TableCell>単価</TableCell>
+                            <TableCell>説明</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        { id === null ? (
+                            <TableRow>
+                                <TableCell></TableCell>
+                                <TableCell>
+                                    <TextField
+                                        type="text"
+                                        id="name"
+                                        {...register("name", {
+                                            required: "必須入力です。",
+                                            maxLength: {
+                                                value: 100,
+                                                message: "100文字以内の商品名を入力してください。",
+                                            }
+                                        })}
+                                        error={Boolean(errors.name)}
+                                        helperText={errors.name?.message?.toString() || ""}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        type="number"
+                                        id="price"
+                                        {...register("price", {
+                                        required: "必須入力です。",
+                                        min: {
+                                            value: 1,
+                                            message: "1から99999999の数値を入力してください",
+                                        },
+                                        max: {
+                                            value: 99999999,
+                                            message: "1から99999999の数値を入力してください",
+                                        },
+                                        })}
+                                        error={Boolean(errors.price)}
+                                        helperText={errors.price?.message?.toString() || ""}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <TextField
+                                        type="text"
+                                        id="description"
+                                        {...register("description")}
+                                    />
+                                </TableCell>
                                 {/* ルーティングのために追加 */}
-                                </td>
-                                <td></td>
-                                <td>
-                                    <button type="button" onClick={() => handleAddCancel()}>
-                                    キャンセル</button>
-                                    <button type="submit" onClick={() => setAction("add")}>
-                                    登録する</button>
-                                </td>
-                            </tr>
-                        ) : (
-                            ""
-                        )}
+                                <TableCell></TableCell>
+                                <TableCell>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<CancelIcon />}
+                                        onClick={() => handleAddCancel()}
+                                    >
+                                        キャンセル
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        startIcon={<CheckIcon />}
+                                        onClick={() => setAction("add")}
+                                    >
+                                        登録する
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ) : ""}
                         {data.map((data: any) => (
                             id === data.id ? (
-                                <tr key={data.id}>
-                                    <td>{data.id}</td>
-                                    <td><input type="text" id="name" {...register("name",
-                                    { required: true, maxLength: 100})}/>
-                                    {errors.name && (
-                                        <div>100文字以内の商品名を入力してください</div>
-                                    )}
-                                    </td>
-                                    <td><input type="text" id="price" {...register("price",
-                                    { required: true, min: 1, max: 9999999,})}/>
-                                    {errors.price && (
-                                        <div>1から9999999の数値を入力してください</div>
-                                    )}
-                                    </td>
-                                    <td><input type="text" id="description" {...register("description",
-                                    )}/>
-                                    </td>
-                                    <td></td>
-                                    <td>
-                                        <button type="button" onClick={() => handleEditCancel()}>
+                                <TableRow key={data.id}>
+                                    <TableCell>{data.id}</TableCell>
+                                    <TableCell>
+                                        <TextField
+                                            type="text"
+                                            id="name"
+                                            {...register("name", {
+                                                required: "必須入力です。",
+                                                maxLength: {
+                                                    value: 100,
+                                                    message: "100文字以内の商品名を入力してください。",
+                                                }
+                                            })}
+                                            error={Boolean(errors.name)}
+                                            helperText={errors.name?.message?.toString() || ""}
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <TextField
+                                            type="number"
+                                            id="price"
+                                            {...register("price", {
+                                            required: "必須入力です。",
+                                            min: {
+                                                value: 1,
+                                                message: "1から99999999の数値を入力してください",
+                                            },
+                                            max: {
+                                                value: 99999999,
+                                                message: "1から99999999の数値を入力してください",
+                                            },
+                                            })}
+                                            error={Boolean(errors.price)}
+                                            helperText={errors.price?.message?.toString() || ""}
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <TextField
+                                            type="text"
+                                            id="description"
+                                            {...register("description")}
+                                        />
+                                    </TableCell>
+                                    <TableCell></TableCell>
+                                    <TableCell>
+                                        <Button
+                                              variant="outlined"
+                                              startIcon={<CancelIcon />}
+                                              onClick={() => handleEditCancel()}
+                                        >
                                             キャンセル
-                                        </button>
-                                        <button type="button" onClick={() => setAction("update")}>
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                            startIcon={<CheckIcon />}
+                                            onClick={() => setAction("update")}
+                                        >
                                             更新する
-                                        </button>
-                                        <button type="button" onClick={() => setAction("delete")}>
-                                            削除する
-                                        </button>
-                                    </td>
-                                </tr>                            
+                                        </Button>
+                                        <IconButton
+                                            aria-label="削除する"
+                                            type="submit"
+                                            color="warning"
+                                            onClick={() => setAction("delete")}
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
                             ) : (
-                                <tr key={data.id}>
-                                <td>{data.id}</td>
-                                <td>{data.name}</td>
-                                <td>{data.price}</td>
-                                <td>{data.description}</td>
-                                <td><Link href={`/inventory/products/${data.id}`}>在庫処理</Link></td>
-                                <td><button onClick={() => handleEditRow(data.id)}>更新・削除</button></td>
-                                </tr>
+                                <TableRow key={data.id}>
+                                    <TableCell>{data.id}</TableCell>
+                                    <TableCell>{data.name}</TableCell>
+                                    <TableCell>{data.price}</TableCell>
+                                    <TableCell>{data.description}</TableCell>
+                                    <TableCell><Link href={`/inventory/products/${data.id}`}>在庫処理</Link></TableCell>
+                                    <TableCell>
+                                        <IconButton
+                                            aria-label="編集する"
+                                            color="primary"
+                                            onClick={() => handleEditRow(data.id)}
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
                             )
                         ))}
-                    </tbody>
-                </table>
-            </form>
+                    </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
         </>
     )
 }
