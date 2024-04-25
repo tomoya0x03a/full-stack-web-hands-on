@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from .models import Product
 from .serializers import ProductSerializer, PurchaseSerializer, SaleSerializer
 from rest_framework import status
@@ -38,6 +39,18 @@ class ProductView(APIView):
         # 検証したデータを永続化する
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
+
+    def put(self, request, id, format=None):
+        product = self.get_object(id)
+        serializer = ProductSerializer(instance=product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def delete(self, request, id, format=None):
+        product = self.get_object(id)
+        product.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class PurchaseView(APIView):
     def post(self, request, format=None):
