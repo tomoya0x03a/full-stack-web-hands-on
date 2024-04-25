@@ -7,6 +7,9 @@ from rest_framework.exceptions import NotFound
 from .models import Product, Purchase, Sales
 from .serializers import ProductSerializer, PurchaseSerializer, SaleSerializer, InventorySerializer
 from rest_framework import status
+from django.conf import settings
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class ProductView(APIView):
     """
@@ -100,3 +103,28 @@ class InventoryView(APIView):
             queryset = purchase.union(sales).order_by(F("date"))
             serializer = InventorySerializer(queryset, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
+
+class LoginView(APIView):
+    """ユーザのログイン処理
+
+    Args:
+        APIView (class): rest_framework.viewsのAPIViewを受け取る
+    """
+    # 認証クラスの指定
+    # リクエストヘッダーにtokenを差し込みといったカスタム動作をしないので素の認証クラスを使用する
+    authentication_classes = [JWTAuthentication]
+    # アクセス許可の指定
+    permission_classes = []
+
+    def post(self, request):
+        serializer = TokenObtainPairSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access = serializer.validated_data.get("access", None)
+        refresh = serializer.validated_data.get("refresh", None)
+        if access:
+            resopnse = Response(status=status.HTTP_200_OK)
+            max_age = settings.COOKIE_TIME
+            resopnse.set_cookie('access', access, httponly=True, max_age=max_age)
+            resopnse.set_cookie('refresh', refresh, httponly=True, max_age=max_age)
+            return resopnse
+        return Response({'errMsg': 'ユーザーの認証に失敗しました'}, status=status.HTTP_401_UNAUTHORIZED)
