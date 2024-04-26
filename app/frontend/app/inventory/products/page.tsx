@@ -1,5 +1,6 @@
 'use client'
 
+import axios from "axios";
 import {
     Alert,
     AlertColor,
@@ -26,7 +27,6 @@ import {
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form"
 import React, { useState, useEffect } from 'react';
-import productsData from "./sample/dummy_products.json"
 import Link from "next/link";
 
 type ProductData = {
@@ -60,7 +60,11 @@ export default function Page() {
     };
 
     useEffect(() => {
-        setData(productsData)
+        axios.get('/api/inventory/products')
+        .then((res) => res.data)
+        .then((data) => {
+            setData(data)
+        })
     }, [])
 
     const [id, setId] = useState<number | null>(0);
