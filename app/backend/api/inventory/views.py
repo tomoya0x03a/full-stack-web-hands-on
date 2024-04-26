@@ -145,3 +145,12 @@ class RetryView(APIView):
             response.set_cookie('access', access, httponly=True, max_age=max_age)
             response.set_cookie('refresh', refresh, httponly=True, max_age=max_age)
         return Response({'errMsg': 'ユーザーの認証に失敗しました'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class LogoutView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    def post(self, request, *args):
+        response = Response(status=status.HTTP_200_OK)
+        response.delete_cookie('access')
+        response.delete_cookie('refresh')
+        return response
