@@ -118,10 +118,26 @@ export default function Page({params}: {
 
     // 仕入れ・卸し処理
     const handlePurchase = (data: FormData) => {
-        result('success', '商品を仕入れました')
+        const purchase = {
+            quantity: data.quantity,
+            purchase_date: new Date(),
+            product: data.id,
+        };
+        axios.post("/api/inventory/purchases", purchase)
+            .then((response) => {
+                result('success', '商品を仕入れました')
+            });
     };
     const handleSell = (data: FormData) => {
-        result('success', '商品を卸しました')
+        const sale = {
+            quantity: data.quantity,
+            sales_date: new Date(),
+            product: data.id,
+        };
+        axios.post("/api/inventory/sales", sale)
+            .then((response) => {
+                result('success', '商品を卸しました')
+            });
     };
 
     return (
