@@ -9,7 +9,7 @@ from .serializers import ProductSerializer, PurchaseSerializer, SaleSerializer, 
 from rest_framework import status
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
 class ProductView(APIView):
     """
@@ -127,4 +127,21 @@ class LoginView(APIView):
             resopnse.set_cookie('access', access, httponly=True, max_age=max_age)
             resopnse.set_cookie('refresh', refresh, httponly=True, max_age=max_age)
             return resopnse
+        return Response({'errMsg': 'ユーザーの認証に失敗しました'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class RetryView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = []
+
+    def post(self, request):
+        request.data['refresh'] = request.META.get('HTTP_REFRESH_TOKEN')
+        serializer = TokenRefreshSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access = serializer.validated_data.get("access", None)
+        refresh = sserializer.validated_data.get("refresh", None)
+        if access:
+            response = Response(status=status.HTTP_200_OK)
+            max_age = settings.COOKIE_TIME
+            response.set_cookie('access', access, httponly=True, max_age=max_age)
+            response.set_cookie('refresh', refresh, httponly=True, max_age=max_age)
         return Response({'errMsg': 'ユーザーの認証に失敗しました'}, status=status.HTTP_401_UNAUTHORIZED)
