@@ -10,6 +10,7 @@ from rest_framework import status
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from api.inventory.authentication import CustomJWTAuthentication
 
 class ProductView(APIView):
     """
@@ -30,6 +31,8 @@ class ProductView(APIView):
         if id is None:
             queryset = Product.objects.all()
             serializer = ProductSerializer(queryset, many=True)
+            print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            print(serializer.data)
         else:
             product = self.get_object(id)
             serializer = ProductSerializer(product)
@@ -130,20 +133,32 @@ class LoginView(APIView):
         return Response({'errMsg': 'ユーザーの認証に失敗しました'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class RetryView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication] # JWTAuthentication→○ CusutomJWTAuthentication→×
     permission_classes = []
 
     def post(self, request):
-        request.data['refresh'] = request.META.get('HTTP_REFRESH_TOKEN')
+        
+        #request.data['refresh'] = request.META.get('HTTP_REFRESH_TOKEN')
+        request.data['refresh'] = request.COOKIES.get('refresh')
+        print("2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(request.data['refresh'])
+        print("2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         serializer = TokenRefreshSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        print("2.5!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(serializer.validated_data)
         access = serializer.validated_data.get("access", None)
-        refresh = sserializer.validated_data.get("refresh", None)
+        refresh = serializer.validated_data.get("refresh", None) # なぜ通らないのか？
+        print("3!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(access)
+        print("4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(refresh)
         if access:
-            response = Response(status=status.HTTP_200_OK)
+            response = Response({'msg': 'ユーザーの認証に成功しました'}, status=status.HTTP_200_OK)
             max_age = settings.COOKIE_TIME
             response.set_cookie('access', access, httponly=True, max_age=max_age)
             response.set_cookie('refresh', refresh, httponly=True, max_age=max_age)
+            return response
         return Response({'errMsg': 'ユーザーの認証に失敗しました'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutView(APIView):

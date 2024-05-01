@@ -1,6 +1,6 @@
 'use client'
 
-import axios from "axios";
+import axios from "../../../plugins/axios";
 import {
     Alert,
     AlertColor,
@@ -61,12 +61,12 @@ export default function Page() {
 
     useEffect(() => {
         axios.get('/api/inventory/products')
-        .then((res) => res.data)
-        .then((data) => {
-            setData(data)
+            .then((res) => res.data)
+            .then((data) => {
+                setData(data)
         })
-    }, [])
-
+    }, [open])
+    
     const [id, setId] = useState<number | null>(0);
     // submit時のactionを分岐させる
     const [action, setAction] = useState<string>("");

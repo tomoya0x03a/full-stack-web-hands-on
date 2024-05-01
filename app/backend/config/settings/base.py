@@ -150,9 +150,10 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=30),
     'UPDATE_LAST_LOGIN': True,
+    'ROTATE_REFRESH_TOKENS': True,
 }
 
 # クッキーの有効期限に使用する

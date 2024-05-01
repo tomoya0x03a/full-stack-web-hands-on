@@ -8,4 +8,7 @@ class CustomJWTAuthentication(JWTAuthentication):
         )
         refresh = request.COOKIES.get('refresh')
         request.META['HTTP_REFRESH_TOKEN'] = refresh
+        print("1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(refresh)
+        print("1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         return super().get_header(request)
