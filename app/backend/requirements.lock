@@ -1,6 +1,16 @@
 asgiref==3.7.2
 Django==5.0.2
 djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.1
 mysqlclient==2.2.4
+numpy==1.26.4
+pandas==2.2.2
+PyJWT==2.8.0
+python-dateutil==2.9.0.post0
 pytz==2024.1
+setuptools==69.0.3
+six==1.16.0
 sqlparse==0.4.4
+timedelta==2020.12.3
+tzdata==2024.1
+wheel==0.42.0
