@@ -1,11 +1,12 @@
 from api.inventory.exception import BusinessException
 from django.db.models import F, Value, Sum
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, TruncMonth
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from .models import Product, Purchase, Sales, SalesFile, Status
-from .serializers import ProductSerializer, PurchaseSerializer, SaleSerializer, InventorySerializer, FileSerializer
+from .serializers import ProductSerializer, PurchaseSerializer, SaleSerializer, InventorySerializer, FileSerializer, SalesSerializer
 from rest_framework import status
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -192,3 +193,9 @@ class SalesSyncView(APIView):
             sales.save()
 
         return Response(status=201)
+
+class SalesList(ListAPIView):
+    queryset = Sales.objects.annotate(monthly_date=TruncMonth('sales_date'))\
+        .values('monthly_date').annotate(monthly_price=Sum('quantity'))\
+            .order_by('monthly_date')
+    serializer_class = SalesSerializer

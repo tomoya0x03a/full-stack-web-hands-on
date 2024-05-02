@@ -17,6 +17,10 @@ class SaleSerializer(serializers.ModelSerializer):
         model = Sales
         fields = '__all__'
 
+class SalesSerializer(serializers.Serializer):
+    monthly_date = serializers.DateTimeField(format='%Y-%m')
+    monthly_price = serializers.IntegerField()
+
 # 仕入れ・売上情報の一覧
 # Modleに依存しないため、個別にフィールドを定義している
 class InventorySerializer(serializers.Serializer):
