@@ -178,11 +178,12 @@ class SalesSyncView(APIView):
         serializer.is_valid(raise_exception=True)
         filename = serializer.validated_data['file'].name
 
-        with open(filename, "wb") as f:
+        with open("upload/" + filename, "wb") as f:
             f.write(serializer.validated_data["file"].read())
 
         sales_file = SalesFile(file_name=filename, status=Status.SYNC)
-        sales_file.save()
+        print(185555555555555555555555555555555555555555555555555555555555)
+        print(sales_file.save())
 
         df = pandas.read_csv(filename)
         for _, row in df.iterrows():
@@ -199,3 +200,20 @@ class SalesList(ListAPIView):
         .values('monthly_date').annotate(monthly_price=Sum('quantity'))\
             .order_by('monthly_date')
     serializer_class = SalesSerializer
+
+class SalesAsyncView(APIView):
+    def post(self, request, format=None):
+        serializer = FileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        filename = serializer.validated_data['file'].name
+
+        with open("upload/" + filename, "wb") as f:
+            f.write(serializer.validated_data['file'].read())
+
+        sales_file = SalesFile(
+            file_name=filename, status=Status.ASYNC_UNPROCESSED
+        )
+        sales_file.save()
+
+        return Response(status=201)

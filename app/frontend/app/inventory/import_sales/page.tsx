@@ -56,12 +56,41 @@ export default function Page() {
             console.log(error)
         })
     })
+
+    const [fileAsync, setFileAsync] = useState()
+    
+    const onChangeFileAsync = (newFile: any) => {
+        setFileAsync(newFile)
+    }
+
+    const doAddAsync = ((e: any) => {
+        if (!fileAsync) {
+            result('error', 'ファイルを選択してください')
+            return
+        }
+
+        const params = {
+            file: fileAsync
+        }
+        axios.post('/api/inventory/async', params, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+        .then(function (response) {
+            console.log(response)
+            result('success', '非同期ファイルが登録されました')
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+    })
+
     const handleClose = (event: any, reason: any) => {
         setOpen(false);
     };
 
     useEffect(() => {
-        alert(1)
         axios.get('/api/inventory/summary')
         .then((res) => res.data)
         .then((data) => {
@@ -79,6 +108,11 @@ export default function Page() {
                 <Typography variant="subtitle1">同期でファイル取込</Typography>
                 <MuiFileInput value={fileSync} onChange={onChangeFileSync} />
                 <Button variant="contained" onClick={doAddSync}>登録</Button>
+            </Box>
+            <Box m={2}>
+                <Typography variant="subtitle1">非同期でファイル取込</Typography>
+                <MuiFileInput value={fileAsync} onChange={onChangeFileAsync} />
+                <Button variant="contained" onClick={doAddAsync}>登録</Button>
             </Box>
             <Box m={2}>
                 <Typography variant="subtitle1">年月ごとの売上数集計</Typography>

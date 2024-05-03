@@ -11,3 +11,5 @@ DATABASES = {
         "ATOMIC_REQUESTS": True
     }
 }
+
+MEDIA_ROOT=BASE_DIR.joinpath('upload')
